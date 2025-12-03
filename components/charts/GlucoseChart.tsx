@@ -16,8 +16,8 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
 }) => {
     if (readings.length === 0) {
         return (
-            <Card title={title}>
-                <Text style={{ textAlign: 'center', color: Colors.textLight }}>
+            <Card title={title} variant="glass">
+                <Text style={{ textAlign: 'center', color: Colors.textLight, fontSize: 15 }}>
                     No hay datos disponibles. ¡Empieza a registrar para ver tu tendencia!
                 </Text>
             </Card>
@@ -48,7 +48,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
         return {
             value: reading.value,
             dataPointColor: color,
-            dataPointRadius: 5,
+            dataPointRadius: 6,
             label: new Date(reading.timestamp).toLocaleDateString('es-ES', {
                 month: 'numeric',
                 day: 'numeric',
@@ -60,15 +60,15 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
     const chartWidth = Math.min(screenWidth - 80, 350);
 
     return (
-        <Card title={title}>
+        <Card title={title} variant="glass">
             <View style={{ marginVertical: 16 }}>
                 <LineChart
                     data={chartData}
                     width={chartWidth}
-                    height={200}
+                    height={220}
                     spacing={Math.max(40, chartWidth / chartData.length)}
                     color={Colors.primary}
-                    thickness={3}
+                    thickness={4}
                     startOpacity={0.9}
                     endOpacity={0.2}
                     initialSpacing={20}
@@ -78,12 +78,14 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                     xAxisColor={Colors.border}
                     yAxisTextStyle={{
                         color: Colors.textLight,
-                        fontSize: 10,
+                        fontSize: 11,
+                        fontWeight: '600',
                     }}
                     xAxisLabelTextStyle={{
                         color: Colors.textLight,
-                        fontSize: 10,
+                        fontSize: 11,
                         width: 50,
+                        fontWeight: '600',
                     }}
                     curved
                     areaChart
@@ -113,6 +115,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
     );
 };
 
+
 const LegendItem: React.FC<{ color: string; label: string }> = ({
     color,
     label,
@@ -120,13 +123,20 @@ const LegendItem: React.FC<{ color: string; label: string }> = ({
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <View
             style={{
-                width: 12,
-                height: 12,
-                borderRadius: 6,
+                width: 14,
+                height: 14,
+                borderRadius: 7,
                 backgroundColor: color,
-                marginRight: 6,
+                marginRight: 8,
+                shadowColor: color,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.4,
+                shadowRadius: 4,
+                elevation: 3,
             }}
         />
-        <Text style={{ fontSize: 12, color: Colors.textLight }}>{label}</Text>
+        <Text style={{ fontSize: 13, color: Colors.textLight, fontWeight: '600' }}>
+            {label}
+        </Text>
     </View>
 );

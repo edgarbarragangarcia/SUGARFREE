@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Animated } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Card } from './ui/Card';
-import { Colors } from '../constants/Colors';
+import { Colors, Gradients } from '../constants/Colors';
 import { PredictionResult } from '../services/PredictionEngine';
 
 interface PredictiveStatusCardProps {
@@ -13,18 +14,43 @@ export const PredictiveStatusCard: React.FC<PredictiveStatusCardProps> = ({
     currentValue,
     prediction,
 }) => {
-    const getRiskColor = () => {
-        if (!prediction) return Colors.textLight;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    // Animate pulse for critical values
+    useEffect(() => {
+        if (prediction?.riskLevel === 'critical' || prediction?.riskLevel === 'high') {
+            Animated.loop(
+                Animated.sequence([
+                    Animated.timing(pulseAnim, {
+                        toValue: 1.05,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(pulseAnim, {
+                        toValue: 1,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                ])
+            ).start();
+        } else {
+            pulseAnim.setValue(1);
+        }
+    }, [prediction?.riskLevel]);
+
+    const getRiskGradient = (): readonly [string, string, ...string[]] => {
+        if (!prediction) return [Colors.textLight, Colors.textLight] as const;
 
         switch (prediction.riskLevel) {
             case 'critical':
-                return Colors.danger;
             case 'high':
-                return Colors.secondary;
+                return Gradients.danger;
             case 'medium':
-                return Colors.warning;
+                return Gradients.warning;
             case 'low':
-                return Colors.success;
+                return Gradients.success;
+            default:
+                return Gradients.primary;
         }
     };
 
@@ -42,43 +68,56 @@ export const PredictiveStatusCard: React.FC<PredictiveStatusCardProps> = ({
     };
 
     const predictedValue = prediction?.predictedValue ?? currentValue;
-    const riskColor = getRiskColor();
+    const riskGradient = getRiskGradient();
     const trendIcon = getTrendIcon();
 
     return (
-        <Card noPadding style={{ overflow: 'hidden' }}>
+        <Card noPadding style={{ overflow: 'hidden' }} variant="glass">
             {/* Header with gradient background */}
-            <View
+            <LinearGradient
+                colors={riskGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={{
-                    backgroundColor: riskColor,
-                    padding: 20,
-                    paddingBottom: 16,
+                    padding: 24,
+                    paddingBottom: 20,
                 }}
             >
                 <Text
                     style={{
                         fontSize: 14,
                         color: Colors.white,
-                        opacity: 0.9,
+                        opacity: 0.95,
                         marginBottom: 8,
+                        fontWeight: '600',
+                        letterSpacing: 1,
+                        textTransform: 'uppercase',
                     }}
                 >
                     Glucosa Actual
                 </Text>
-                <Text
-                    style={{
-                        fontSize: 48,
-                        fontWeight: '800',
-                        color: Colors.white,
-                    }}
-                >
-                    {currentValue}
-                    <Text style={{ fontSize: 24 }}> mg/dL</Text>
-                </Text>
-            </View>
+                <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                    <Text
+                        style={{
+                            fontSize: 56,
+                            fontWeight: '900',
+                            color: Colors.white,
+                            letterSpacing: -2,
+                        }}
+                    >
+                        {currentValue}
+                        <Text style={{ fontSize: 28, fontWeight: '700' }}> mg/dL</Text>
+                    </Text>
+                </Animated.View>
+            </LinearGradient>
 
-            {/* Prediction Section */}
-            <View style={{ padding: 20, backgroundColor: Colors.white }}>
+            {/* Prediction Section with glassmorphism */}
+            <View
+                style={{
+                    padding: 24,
+                    backgroundColor: Colors.glassBackground,
+                }}
+            >
                 <View
                     style={{
                         flexDirection: 'row',
@@ -88,8 +127,28 @@ export const PredictiveStatusCard: React.FC<PredictiveStatusCardProps> = ({
                 >
                     {/* Trend Arrow */}
                     <View style={{ alignItems: 'center', flex: 1 }}>
-                        <Text style={{ fontSize: 40, color: riskColor }}>{trendIcon}</Text>
-                        <Text style={{ fontSize: 12, color: Colors.textLight, marginTop: 4 }}>
+                        <View
+                            style={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: 30,
+                                backgroundColor: Colors.glassBackgroundDark,
+                                borderWidth: 2,
+                                borderColor: Colors.glassBorder,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: 8,
+                            }}
+                        >
+                            <Text style={{ fontSize: 32 }}>{trendIcon}</Text>
+                        </View>
+                        <Text
+                            style={{
+                                fontSize: 13,
+                                color: Colors.textLight,
+                                fontWeight: '600',
+                            }}
+                        >
                             {prediction?.trend === 'rising' ? 'Subiendo' :
                                 prediction?.trend === 'falling' ? 'Bajando' : 'Estable'}
                         </Text>
@@ -99,33 +158,66 @@ export const PredictiveStatusCard: React.FC<PredictiveStatusCardProps> = ({
                     <View style={{ flex: 2, alignItems: 'center' }}>
                         <Text
                             style={{
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: Colors.textLight,
-                                marginBottom: 4,
+                                marginBottom: 6,
+                                fontWeight: '600',
+                                letterSpacing: 0.5,
                             }}
                         >
                             Predicción en 2 horas
                         </Text>
-                        <Text
+                        <LinearGradient
+                            colors={riskGradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
                             style={{
-                                fontSize: 36,
-                                fontWeight: '700',
-                                color: riskColor,
+                                padding: 16,
+                                paddingHorizontal: 24,
+                                borderRadius: 20,
+                                marginVertical: 8,
                             }}
                         >
-                            {predictedValue}
-                            <Text style={{ fontSize: 18 }}> mg/dL</Text>
-                        </Text>
-                        {prediction && (
                             <Text
                                 style={{
-                                    fontSize: 12,
-                                    color: Colors.textLight,
+                                    fontSize: 40,
+                                    fontWeight: '900',
+                                    color: Colors.white,
+                                    textAlign: 'center',
+                                    letterSpacing: -1,
+                                }}
+                            >
+                                {predictedValue}
+                                <Text style={{ fontSize: 20 }}> mg/dL</Text>
+                            </Text>
+                        </LinearGradient>
+                        {prediction && (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
                                     marginTop: 4,
                                 }}
                             >
-                                {prediction.confidence}% de confianza
-                            </Text>
+                                <View
+                                    style={{
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: 3,
+                                        backgroundColor: Colors.success,
+                                        marginRight: 6,
+                                    }}
+                                />
+                                <Text
+                                    style={{
+                                        fontSize: 12,
+                                        color: Colors.textLight,
+                                        fontWeight: '600',
+                                    }}
+                                >
+                                    {prediction.confidence}% de confianza
+                                </Text>
+                            </View>
                         )}
                     </View>
                 </View>
@@ -134,13 +226,34 @@ export const PredictiveStatusCard: React.FC<PredictiveStatusCardProps> = ({
                 {prediction && (
                     <View
                         style={{
-                            marginTop: 16,
-                            padding: 12,
-                            backgroundColor: Colors.background,
-                            borderRadius: 12,
+                            marginTop: 20,
+                            padding: 16,
+                            backgroundColor: Colors.glassBackgroundDark,
+                            borderRadius: 16,
+                            borderWidth: 1,
+                            borderColor: Colors.glassBorder,
                         }}
                     >
-                        <Text style={{ fontSize: 14, color: Colors.text, lineHeight: 20 }}>
+                        <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                            <Text style={{ fontSize: 16, marginRight: 6 }}>💡</Text>
+                            <Text
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: '700',
+                                    color: Colors.text,
+                                    letterSpacing: 0.3,
+                                }}
+                            >
+                                Recomendación
+                            </Text>
+                        </View>
+                        <Text
+                            style={{
+                                fontSize: 14,
+                                color: Colors.textLight,
+                                lineHeight: 22,
+                            }}
+                        >
                             {prediction.recommendation}
                         </Text>
                     </View>

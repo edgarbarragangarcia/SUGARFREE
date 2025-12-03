@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,7 +6,7 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Redirect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '../constants/Colors';
@@ -24,12 +24,10 @@ export default function LoginScreen() {
     const [targetMin, setTargetMin] = useState('70');
     const [targetMax, setTargetMax] = useState('140');
 
-    useEffect(() => {
-        // Auto-navigate if already logged in
-        if (isLoggedIn && profile?.isProfileComplete) {
-            router.replace('/(tabs)/home');
-        }
-    }, [isLoggedIn, profile]);
+    // Use Redirect component instead of useEffect for auto-navigation
+    if (isLoggedIn && profile?.isProfileComplete) {
+        return <Redirect href="/(tabs)/home" />;
+    }
 
     const handleSubmit = () => {
         if (!name.trim()) {
@@ -155,7 +153,7 @@ export default function LoginScreen() {
                         </View>
 
                         <Button
-                            title="Get Started"
+                            title="Comenzar"
                             size="large"
                             onPress={handleSubmit}
                         />

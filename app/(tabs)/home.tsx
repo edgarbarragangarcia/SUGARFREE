@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Colors } from '../../constants/Colors';
+import { Colors, Gradients } from '../../constants/Colors';
 import { useUserStore } from '../../store/userStore';
 import { useGlucoseStore } from '../../store/glucoseStore';
 import { PredictionEngine, PredictionResult } from '../../services/PredictionEngine';
@@ -19,6 +20,25 @@ export default function HomeScreen() {
     const { readings, addReading } = useGlucoseStore();
     const [prediction, setPrediction] = useState<PredictionResult | null>(null);
     const [showAlert, setShowAlert] = useState(false);
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    // Pulse animation for emergency button
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.05,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, []);
 
     // Load mock data for first-time users
     useEffect(() => {
@@ -52,82 +72,136 @@ export default function HomeScreen() {
     const currentValue = latestReading?.value ?? 100;
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
-            <StatusBar style="light" />
-            <ScrollView
-                contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Saludo */}
-                <Text style={{ fontSize: 24, fontWeight: '700', color: Colors.text, marginBottom: 4 }}>
-                    ¡Hola, {profile?.name ?? 'amigo'}! 👋
-                </Text>
-                <Text style={{ fontSize: 16, color: Colors.textLight, marginBottom: 24 }}>
-                    {new Date().toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                    })}
-                </Text>
-
-                {/* Predictive Status Card - THE MAIN FEATURE */}
-                <PredictiveStatusCard currentValue={currentValue} prediction={prediction} />
-
-                {/* Acciones Rápidas */}
-                <View style={{ marginTop: 24, marginBottom: 24 }}>
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.text, marginBottom: 12 }}>
-                        Acciones Rápidas
-                    </Text>
-                    <View style={{ flexDirection: 'row', gap: 12 }}>
-                        <Button
-                            title="Registrar Glucosa"
-                            variant="primary"
-                            size="medium"
-                            onPress={() => router.push('/(tabs)/log')}
-                            style={{ flex: 1 }}
-                        />
-                        <Button
-                            title="Ver Análisis"
-                            variant="outline"
-                            size="medium"
-                            onPress={() => router.push('/(tabs)/insights')}
-                            style={{ flex: 1 }}
-                        />
-                    </View>
-                </View>
-
-                {/* Gráfico de 7 Días */}
-                <GlucoseChart readings={readings} />
-
-                {/* Botón de Emergencia */}
-                <TouchableOpacity
-                    style={{
-                        marginTop: 24,
-                        backgroundColor: Colors.danger,
-                        borderRadius: 12,
-                        padding: 20,
-                        alignItems: 'center',
-                    }}
-                    onPress={() => setShowAlert(true)}
+        <LinearGradient
+            colors={Gradients.background}
+            style={{ flex: 1 }}
+        >
+            <SafeAreaView style={{ flex: 1 }}>
+                <StatusBar style="light" />
+                <ScrollView
+                    contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+                    showsVerticalScrollIndicator={false}
                 >
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.white }}>
-                        🚨 Ayuda de Emergencia
-                    </Text>
-                    <Text style={{ fontSize: 14, color: Colors.white, marginTop: 4, opacity: 0.9 }}>
-                        Toca si necesitas asistencia inmediata
-                    </Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    {/* Saludo */}
+                    <View style={{ marginBottom: 28 }}>
+                        <Text style={{
+                            fontSize: 32,
+                            fontWeight: '900',
+                            color: Colors.text,
+                            marginBottom: 6,
+                            letterSpacing: -0.5,
+                        }}>
+                            ¡Hola, {profile?.name ?? 'amigo'}! 👋
+                        </Text>
+                        <Text style={{
+                            fontSize: 16,
+                            color: Colors.textLight,
+                            fontWeight: '500',
+                        }}>
+                            {new Date().toLocaleDateString('es-ES', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            })}
+                        </Text>
+                    </View>
 
-            {/* Alert Modal */}
-            {prediction?.alert && (
-                <AlertModal
-                    visible={showAlert}
-                    alert={prediction.alert}
-                    onClose={() => setShowAlert(false)}
-                />
-            )}
-        </SafeAreaView>
+                    {/* Predictive Status Card - THE MAIN FEATURE */}
+                    <PredictiveStatusCard currentValue={currentValue} prediction={prediction} />
+
+                    {/* Acciones Rápidas */}
+                    <View style={{ marginTop: 28, marginBottom: 28 }}>
+                        <Text style={{
+                            fontSize: 20,
+                            fontWeight: '800',
+                            color: Colors.text,
+                            marginBottom: 16,
+                            letterSpacing: 0.3,
+                        }}>
+                            Acciones Rápidas
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 14 }}>
+                            <Button
+                                title="Registrar Glucosa"
+                                variant="primary"
+                                size="medium"
+                                onPress={() => router.push('/(tabs)/log')}
+                                style={{ flex: 1 }}
+                            />
+                            <Button
+                                title="Ver Análisis"
+                                variant="outline"
+                                size="medium"
+                                onPress={() => router.push('/(tabs)/insights')}
+                                style={{ flex: 1 }}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Gráfico de 7 Días */}
+                    <GlucoseChart readings={readings} />
+
+                    {/* Botón de Emergencia con pulse */}
+                    <Animated.View
+                        style={{
+                            marginTop: 28,
+                            transform: [{ scale: pulseAnim }],
+                        }}
+                    >
+                        <TouchableOpacity
+                            onPress={() => setShowAlert(true)}
+                            style={{
+                                overflow: 'hidden',
+                                borderRadius: 20,
+                                shadowColor: Colors.danger,
+                                shadowOffset: { width: 0, height: 8 },
+                                shadowOpacity: 0.4,
+                                shadowRadius: 16,
+                                elevation: 8,
+                            }}
+                        >
+                            <LinearGradient
+                                colors={Gradients.danger}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={{
+                                    padding: 24,
+                                    alignItems: 'center',
+                                    borderRadius: 20,
+                                }}
+                            >
+                                <Text style={{
+                                    fontSize: 24,
+                                    fontWeight: '900',
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                }}>
+                                    🚨 Ayuda de Emergencia
+                                </Text>
+                                <Text style={{
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    marginTop: 6,
+                                    opacity: 0.95,
+                                    fontWeight: '600',
+                                }}>
+                                    Toca si necesitas asistencia inmediata
+                                </Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </Animated.View>
+                </ScrollView>
+
+                {/* Alert Modal */}
+                {prediction?.alert && (
+                    <AlertModal
+                        visible={showAlert}
+                        alert={prediction.alert}
+                        onClose={() => setShowAlert(false)}
+                    />
+                )}
+            </SafeAreaView>
+        </LinearGradient>
     );
 }
