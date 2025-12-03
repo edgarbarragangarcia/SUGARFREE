@@ -1,15 +1,16 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
-import { View, Text, ViewProps, Animated, Platform } from 'react-native';
+import { View, Text, ViewProps, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../../constants/Colors';
+import { Colors, Gradients } from '../../constants/Colors';
 
 interface CardProps extends ViewProps {
     children: ReactNode;
     title?: string;
     subtitle?: string;
     noPadding?: boolean;
-    variant?: 'default' | 'glass' | 'premium';
+    variant?: 'default' | 'glass' | 'premium' | 'gradient';
     animated?: boolean;
+    accentColor?: readonly [string, string, ...string[]];
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -19,33 +20,52 @@ export const Card: React.FC<CardProps> = ({
     noPadding = false,
     variant = 'glass',
     animated = true,
+    accentColor = Gradients.primary,
     style,
     ...props
 }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const scaleAnim = useRef(new Animated.Value(0.96)).current;
-    const translateY = useRef(new Animated.Value(10)).current;
+    const scaleAnim = useRef(new Animated.Value(0.94)).current;
+    const translateY = useRef(new Animated.Value(20)).current;
+    const shimmerAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         if (animated) {
+            // Entry animation
             Animated.parallel([
                 Animated.timing(fadeAnim, {
                     toValue: 1,
-                    duration: 600,
+                    duration: 700,
                     useNativeDriver: true,
                 }),
                 Animated.spring(scaleAnim, {
                     toValue: 1,
-                    friction: 8,
-                    tension: 40,
+                    friction: 7,
+                    tension: 35,
                     useNativeDriver: true,
                 }),
                 Animated.timing(translateY, {
                     toValue: 0,
-                    duration: 600,
+                    duration: 700,
                     useNativeDriver: true,
                 }),
             ]).start();
+
+            // Continuous shimmer effect
+            Animated.loop(
+                Animated.sequence([
+                    Animated.timing(shimmerAnim, {
+                        toValue: 1,
+                        duration: 3000,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(shimmerAnim, {
+                        toValue: 0,
+                        duration: 3000,
+                        useNativeDriver: true,
+                    }),
+                ])
+            ).start();
         } else {
             fadeAnim.setValue(1);
             scaleAnim.setValue(1);
@@ -53,91 +73,74 @@ export const Card: React.FC<CardProps> = ({
         }
     }, []);
 
-    const renderCard = () => {
-        if (variant === 'glass') {
-            return (
-                <View
-                    {...props}
-                    style={[
-                        {
-                            backgroundColor: Colors.white,
-                            borderRadius: 28,
-                            borderWidth: 1,
-                            borderColor: 'rgba(0,0,0,0.03)',
-                            shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 12 },
-                            shadowOpacity: 0.06,
-                            shadowRadius: 24,
-                            elevation: 8,
-                            padding: noPadding ? 0 : 24,
-                        },
-                        style,
-                    ]}
-                >
-                    {title && (
-                        <View style={{ marginBottom: subtitle ? 8 : 20 }}>
-                            <Text
-                                style={{
-                                    fontSize: 20,
-                                    fontWeight: '700',
-                                    color: Colors.text,
-                                    letterSpacing: -0.5,
-                                }}
-                            >
-                                {title}
-                            </Text>
-                            {subtitle && (
-                                <Text
-                                    style={{
-                                        fontSize: 14,
-                                        color: Colors.textLight,
-                                        marginTop: 4,
-                                        fontWeight: '500',
-                                    }}
-                                >
-                                    {subtitle}
-                                </Text>
-                            )}
-                        </View>
-                    )}
-                    {children}
-                </View>
-            );
-        }
+    const shimmerTranslate = shimmerAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [-100, 100],
+    });
 
-        if (variant === 'premium') {
+    const renderCard = () => {
+        if (variant === 'gradient') {
             return (
                 <View
                     {...props}
                     style={[
                         {
-                            borderRadius: 28,
-                            shadowColor: Colors.primary,
-                            shadowOffset: { width: 0, height: 16 },
-                            shadowOpacity: 0.12,
-                            shadowRadius: 32,
-                            elevation: 12,
-                            backgroundColor: Colors.white,
+                            borderRadius: 32,
+                            padding: 2, // Border thickness
+                            overflow: 'hidden',
                         },
                         style,
                     ]}
                 >
+                    {/* Animated Gradient Border */}
                     <LinearGradient
-                        colors={['#FFFFFF', '#F0F9FF']}
+                        colors={[...accentColor, accentColor[0]]}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            borderRadius: 32,
+                        }}
+                    />
+
+                    {/* Inner Card */}
+                    <View
+                        style={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 30,
                             padding: noPadding ? 0 : 24,
-                            borderRadius: 28,
-                            borderWidth: 1,
-                            borderColor: 'rgba(20, 184, 166, 0.1)',
+                            shadowColor: accentColor[0],
+                            shadowOffset: { width: 0, height: 20 },
+                            shadowOpacity: 0.15,
+                            shadowRadius: 40,
+                            elevation: 15,
                         }}
                     >
+                        {/* Top Accent Line */}
+                        <LinearGradient
+                            colors={accentColor}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: 4,
+                                borderTopLeftRadius: 30,
+                                borderTopRightRadius: 30,
+                            }}
+                        />
+
                         {title && (
-                            <View style={{ marginBottom: subtitle ? 8 : 20 }}>
+                            <View style={{ marginTop: 8, marginBottom: subtitle ? 8 : 20 }}>
                                 <Text
                                     style={{
-                                        fontSize: 20,
+                                        fontSize: 22,
                                         fontWeight: '800',
                                         color: Colors.text,
                                         letterSpacing: -0.5,
@@ -150,7 +153,7 @@ export const Card: React.FC<CardProps> = ({
                                         style={{
                                             fontSize: 14,
                                             color: Colors.textLight,
-                                            marginTop: 4,
+                                            marginTop: 6,
                                             fontWeight: '500',
                                         }}
                                     >
@@ -160,38 +163,226 @@ export const Card: React.FC<CardProps> = ({
                             </View>
                         )}
                         {children}
-                    </LinearGradient>
+                    </View>
                 </View>
             );
         }
 
-        // Default variant
+        if (variant === 'glass') {
+            return (
+                <View
+                    {...props}
+                    style={[
+                        {
+                            borderRadius: 32,
+                            overflow: 'hidden',
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderWidth: 1.5,
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            shadowColor: '#14B8A6',
+                            shadowOffset: { width: 0, height: 20 },
+                            shadowOpacity: 0.08,
+                            shadowRadius: 35,
+                            elevation: 10,
+                        },
+                        style,
+                    ]}
+                >
+                    {/* Shimmer Effect */}
+                    <Animated.View
+                        style={{
+                            position: 'absolute',
+                            top: -50,
+                            left: 0,
+                            right: 0,
+                            height: 100,
+                            transform: [{ translateX: shimmerTranslate }],
+                        }}
+                    >
+                        <LinearGradient
+                            colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0)']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                            }}
+                        />
+                    </Animated.View>
+
+                    {/* Subtle gradient overlay */}
+                    <LinearGradient
+                        colors={['rgba(255, 255, 255, 0.5)', 'rgba(248, 250, 252, 0.3)']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                        }}
+                    />
+
+                    <View style={{ padding: noPadding ? 0 : 24 }}>
+                        {title && (
+                            <View style={{ marginBottom: subtitle ? 8 : 20 }}>
+                                <Text
+                                    style={{
+                                        fontSize: 22,
+                                        fontWeight: '800',
+                                        color: Colors.text,
+                                        letterSpacing: -0.5,
+                                    }}
+                                >
+                                    {title}
+                                </Text>
+                                {subtitle && (
+                                    <Text
+                                        style={{
+                                            fontSize: 14,
+                                            color: Colors.textLight,
+                                            marginTop: 6,
+                                            fontWeight: '500',
+                                        }}
+                                    >
+                                        {subtitle}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+                        {children}
+                    </View>
+                </View>
+            );
+        }
+
+        if (variant === 'premium') {
+            return (
+                <View
+                    {...props}
+                    style={[
+                        {
+                            borderRadius: 32,
+                            overflow: 'hidden',
+                        },
+                        style,
+                    ]}
+                >
+                    {/* Multi-layer shadow container */}
+                    <View
+                        style={{
+                            borderRadius: 32,
+                            shadowColor: accentColor[0],
+                            shadowOffset: { width: 0, height: 25 },
+                            shadowOpacity: 0.2,
+                            shadowRadius: 50,
+                            elevation: 20,
+                        }}
+                    >
+                        <LinearGradient
+                            colors={['#FFFFFF', '#F0F9FF', '#E0F2FE']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={{
+                                borderRadius: 32,
+                                borderWidth: 2,
+                                borderColor: 'rgba(20, 184, 166, 0.15)',
+                            }}
+                        >
+                            {/* Glossy top highlight */}
+                            <LinearGradient
+                                colors={['rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0)']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 0, y: 0.5 }}
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: '50%',
+                                    borderTopLeftRadius: 32,
+                                    borderTopRightRadius: 32,
+                                }}
+                            />
+
+                            <View style={{ padding: noPadding ? 0 : 26 }}>
+                                {title && (
+                                    <View style={{ marginBottom: subtitle ? 10 : 22 }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 24,
+                                                fontWeight: '900',
+                                                color: Colors.text,
+                                                letterSpacing: -0.7,
+                                            }}
+                                        >
+                                            {title}
+                                        </Text>
+                                        {subtitle && (
+                                            <Text
+                                                style={{
+                                                    fontSize: 15,
+                                                    color: Colors.textLight,
+                                                    marginTop: 6,
+                                                    fontWeight: '600',
+                                                }}
+                                            >
+                                                {subtitle}
+                                            </Text>
+                                        )}
+                                    </View>
+                                )}
+                                {children}
+                            </View>
+                        </LinearGradient>
+                    </View>
+                </View>
+            );
+        }
+
+        // Default variant - Enhanced
         return (
             <View
                 {...props}
                 style={[
                     {
                         backgroundColor: Colors.white,
-                        borderRadius: 24,
+                        borderRadius: 28,
                         borderWidth: 1,
-                        borderColor: Colors.border,
-                        shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.04,
-                        shadowRadius: 12,
-                        elevation: 3,
-                        padding: noPadding ? 0 : 20,
+                        borderColor: 'rgba(0,0,0,0.06)',
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 15 },
+                        shadowOpacity: 0.06,
+                        shadowRadius: 30,
+                        elevation: 8,
+                        padding: noPadding ? 0 : 22,
                     },
                     style,
                 ]}
             >
+                {/* Subtle inner glow */}
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 1,
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        borderTopLeftRadius: 28,
+                        borderTopRightRadius: 28,
+                    }}
+                />
+
                 {title && (
-                    <View style={{ marginBottom: subtitle ? 6 : 16 }}>
+                    <View style={{ marginBottom: subtitle ? 8 : 18 }}>
                         <Text
                             style={{
-                                fontSize: 18,
+                                fontSize: 20,
                                 fontWeight: '700',
                                 color: Colors.text,
+                                letterSpacing: -0.3,
                             }}
                         >
                             {title}
@@ -199,9 +390,10 @@ export const Card: React.FC<CardProps> = ({
                         {subtitle && (
                             <Text
                                 style={{
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: Colors.textLight,
-                                    marginTop: 4,
+                                    marginTop: 5,
+                                    fontWeight: '500',
                                 }}
                             >
                                 {subtitle}
@@ -232,3 +424,4 @@ export const Card: React.FC<CardProps> = ({
         </Animated.View>
     );
 };
+
