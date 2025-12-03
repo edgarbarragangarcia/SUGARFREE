@@ -153,7 +153,7 @@ export default function HomeScreen() {
                             onPress={() => setShowAlert(true)}
                             style={{
                                 overflow: 'hidden',
-                                borderRadius: 20,
+                                borderRadius: 28,
                                 shadowColor: Colors.danger,
                                 shadowOffset: { width: 0, height: 8 },
                                 shadowOpacity: 0.4,
@@ -168,7 +168,7 @@ export default function HomeScreen() {
                                 style={{
                                     padding: 24,
                                     alignItems: 'center',
-                                    borderRadius: 20,
+                                    borderRadius: 28,
                                 }}
                             >
                                 <Text style={{

@@ -209,10 +209,15 @@ export default function LogScreen() {
                                 <View style={{
                                     backgroundColor: Colors.backgroundLight,
                                     padding: 16,
-                                    borderRadius: 12,
+                                    borderRadius: 20,
                                     borderWidth: 1,
                                     borderColor: Colors.border,
                                     marginBottom: 12,
+                                    shadowColor: Colors.shadow,
+                                    shadowOffset: { width: 0, height: 4 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 8,
+                                    elevation: 2,
                                 }}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.primary, marginBottom: 8 }}>
                                         {foodAnalysis.foodName}

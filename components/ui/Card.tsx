@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
-import { View, Text, ViewProps, Animated } from 'react-native';
+import { View, Text, ViewProps, Animated, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/Colors';
 
@@ -23,14 +23,15 @@ export const Card: React.FC<CardProps> = ({
     ...props
 }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const scaleAnim = useRef(new Animated.Value(0.95)).current;
+    const scaleAnim = useRef(new Animated.Value(0.96)).current;
+    const translateY = useRef(new Animated.Value(10)).current;
 
     useEffect(() => {
         if (animated) {
             Animated.parallel([
                 Animated.timing(fadeAnim, {
                     toValue: 1,
-                    duration: 400,
+                    duration: 600,
                     useNativeDriver: true,
                 }),
                 Animated.spring(scaleAnim, {
@@ -39,7 +40,16 @@ export const Card: React.FC<CardProps> = ({
                     tension: 40,
                     useNativeDriver: true,
                 }),
+                Animated.timing(translateY, {
+                    toValue: 0,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
             ]).start();
+        } else {
+            fadeAnim.setValue(1);
+            scaleAnim.setValue(1);
+            translateY.setValue(0);
         }
     }, []);
 
@@ -51,38 +61,25 @@ export const Card: React.FC<CardProps> = ({
                     style={[
                         {
                             backgroundColor: Colors.white,
-                            borderRadius: 24,
+                            borderRadius: 28,
                             borderWidth: 1,
-                            borderColor: 'rgba(0,0,0,0.05)', // Borde muy sutil
+                            borderColor: 'rgba(0,0,0,0.03)',
                             shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.05, // Sombra muy suave
-                            shadowRadius: 12,
-                            elevation: 4,
-                            padding: noPadding ? 0 : 20,
-                            overflow: 'hidden',
+                            shadowOffset: { width: 0, height: 12 },
+                            shadowOpacity: 0.06,
+                            shadowRadius: 24,
+                            elevation: 8,
+                            padding: noPadding ? 0 : 24,
                         },
                         style,
                     ]}
                 >
-                    {/* Gradient Border Effect - Sutil en tema claro */}
-                    <LinearGradient
-                        colors={['rgba(20, 184, 166, 0.1)', 'transparent']}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: 2,
-                        }}
-                    />
-
                     {title && (
-                        <View style={{ marginBottom: subtitle ? 4 : 16 }}>
+                        <View style={{ marginBottom: subtitle ? 8 : 20 }}>
                             <Text
                                 style={{
-                                    fontSize: 22,
-                                    fontWeight: '800',
+                                    fontSize: 20,
+                                    fontWeight: '700',
                                     color: Colors.text,
                                     letterSpacing: -0.5,
                                 }}
@@ -95,6 +92,7 @@ export const Card: React.FC<CardProps> = ({
                                         fontSize: 14,
                                         color: Colors.textLight,
                                         marginTop: 4,
+                                        fontWeight: '500',
                                     }}
                                 >
                                     {subtitle}
@@ -113,33 +111,33 @@ export const Card: React.FC<CardProps> = ({
                     {...props}
                     style={[
                         {
-                            borderRadius: 24,
-                            overflow: 'hidden',
+                            borderRadius: 28,
+                            shadowColor: Colors.primary,
+                            shadowOffset: { width: 0, height: 16 },
+                            shadowOpacity: 0.12,
+                            shadowRadius: 32,
+                            elevation: 12,
+                            backgroundColor: Colors.white,
                         },
                         style,
                     ]}
                 >
                     <LinearGradient
-                        colors={['#FFFFFF', '#F8FAFC']} // Gradiente blanco muy sutil
+                        colors={['#FFFFFF', '#F0F9FF']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={{
-                            padding: noPadding ? 0 : 20,
-                            borderRadius: 24,
+                            padding: noPadding ? 0 : 24,
+                            borderRadius: 28,
                             borderWidth: 1,
-                            borderColor: 'rgba(0,0,0,0.03)',
-                            shadowColor: Colors.primary, // Sombra con tinte del color primario
-                            shadowOffset: { width: 0, height: 10 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 20,
-                            elevation: 10,
+                            borderColor: 'rgba(20, 184, 166, 0.1)',
                         }}
                     >
                         {title && (
-                            <View style={{ marginBottom: subtitle ? 4 : 16 }}>
+                            <View style={{ marginBottom: subtitle ? 8 : 20 }}>
                                 <Text
                                     style={{
-                                        fontSize: 22,
+                                        fontSize: 20,
                                         fontWeight: '800',
                                         color: Colors.text,
                                         letterSpacing: -0.5,
@@ -153,6 +151,7 @@ export const Card: React.FC<CardProps> = ({
                                             fontSize: 14,
                                             color: Colors.textLight,
                                             marginTop: 4,
+                                            fontWeight: '500',
                                         }}
                                     >
                                         {subtitle}
@@ -173,24 +172,24 @@ export const Card: React.FC<CardProps> = ({
                 style={[
                     {
                         backgroundColor: Colors.white,
-                        borderRadius: 20,
+                        borderRadius: 24,
                         borderWidth: 1,
                         borderColor: Colors.border,
                         shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.05,
-                        shadowRadius: 8,
-                        elevation: 2,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.04,
+                        shadowRadius: 12,
+                        elevation: 3,
                         padding: noPadding ? 0 : 20,
                     },
                     style,
                 ]}
             >
                 {title && (
-                    <View style={{ marginBottom: subtitle ? 4 : 16 }}>
+                    <View style={{ marginBottom: subtitle ? 6 : 16 }}>
                         <Text
                             style={{
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: '700',
                                 color: Colors.text,
                             }}
@@ -200,7 +199,7 @@ export const Card: React.FC<CardProps> = ({
                         {subtitle && (
                             <Text
                                 style={{
-                                    fontSize: 14,
+                                    fontSize: 13,
                                     color: Colors.textLight,
                                     marginTop: 4,
                                 }}
@@ -223,7 +222,10 @@ export const Card: React.FC<CardProps> = ({
         <Animated.View
             style={{
                 opacity: fadeAnim,
-                transform: [{ scale: scaleAnim }],
+                transform: [
+                    { scale: scaleAnim },
+                    { translateY: translateY }
+                ],
             }}
         >
             {renderCard()}

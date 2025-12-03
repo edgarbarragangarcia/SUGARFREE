@@ -87,7 +87,7 @@ export default function InsightsScreen() {
                                 style={{
                                     paddingVertical: 14,
                                     paddingHorizontal: 12,
-                                    borderRadius: 12,
+                                    borderRadius: 16,
                                     marginBottom: index < insights.length - 1 ? 10 : 0,
                                     backgroundColor: Colors.glassBackgroundDark,
                                     borderWidth: 1,

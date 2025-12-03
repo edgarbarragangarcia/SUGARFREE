@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         backgroundColor: Colors.white,
-        borderRadius: 20,
+        borderRadius: 28,
         width: '100%',
         maxWidth: 400,
         overflow: 'hidden',
