@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 
-const GOOGLE_AI_API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_AI_API_KEY || 'AIzaSyAFdFeNFrTZOgkwF1_X0Y4Bo--aadgcFv8';
+const GOOGLE_AI_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY || Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_AI_API_KEY;
 
 interface FoodAnalysisResult {
     foodName: string;

@@ -39,7 +39,9 @@
       ]
     ],
     "extra": {
-      "EXPO_PUBLIC_GOOGLE_AI_API_KEY": "AIzaSyAFdFeNFrTZOgkwF1_X0Y4Bo--aadgcFv8"
+      "eas": {
+        "projectId": "your-project-id"
+      }
     }
   }
 }

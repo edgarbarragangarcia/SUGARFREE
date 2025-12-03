@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyAFdFeNFrTZOgkwF1_X0Y4Bo--aadgcFv8';
+const API_KEY = process.env.GOOGLE_AI_API_KEY || 'YOUR_API_KEY_HERE';
 
 async function testGemini() {
     console.log('🔍 Testing Gemini API...\n');
