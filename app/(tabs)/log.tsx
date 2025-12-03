@@ -5,13 +5,19 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Image,
+    TouchableOpacity,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { useGlucoseStore } from '../../store/glucoseStore';
 import { PredictionEngine } from '../../services/PredictionEngine';
+import { GeminiVisionService } from '../../services/GeminiVisionService';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -30,7 +36,80 @@ export default function LogScreen() {
     const [showAlert, setShowAlert] = useState(false);
     const [currentAlert, setCurrentAlert] = useState<any>(null);
 
+    // Estados para análisis de comida
+    const [foodImage, setFoodImage] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [foodAnalysis, setFoodAnalysis] = useState<any>(null);
+
     const tags: GlucoseTag[] = ['Ayunas', 'Antes de Comer', 'Después de Comer', 'Al Dormir'];
+
+    const pickImage = async (useCamera: boolean) => {
+        try {
+            let result;
+
+            if (useCamera) {
+                const { status } = await ImagePicker.requestCameraPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Se necesita permiso para usar la cámara');
+                    return;
+                }
+                result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 0.8,
+                    base64: true,
+                });
+            } else {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Se necesita permiso para acceder a las fotos');
+                    return;
+                }
+                result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 0.8,
+                    base64: true,
+                });
+            }
+
+            if (!result.canceled && result.assets[0].base64) {
+                setFoodImage(result.assets[0].uri);
+                await analyzeFood(result.assets[0].base64);
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            alert('Error al seleccionar imagen');
+        }
+    };
+
+    const analyzeFood = async (base64Image: string) => {
+        setIsAnalyzing(true);
+        setFoodAnalysis(null);
+
+        try {
+            const analysis = await GeminiVisionService.analyzeFoodImage(base64Image);
+            setFoodAnalysis(analysis);
+
+            // Auto-llenar campos basados en el análisis
+            if (analysis.estimatedGlucoseImpact) {
+                setGlucoseValue(analysis.estimatedGlucoseImpact.toString());
+            }
+
+            const noteText = `${analysis.foodName}\n` +
+                `IG: ${analysis.estimatedGlycemicIndex} | Carbos: ${analysis.estimatedCarbs}g\n` +
+                `${analysis.recommendation}`;
+            setNote(noteText);
+
+        } catch (error) {
+            console.error('Error analyzing food:', error);
+            alert('Error al analizar la comida. Inténtalo de nuevo.');
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     const handleSubmit = () => {
         const value = parseFloat(glucoseValue);
@@ -74,6 +153,8 @@ export default function LogScreen() {
         // Reset form
         setGlucoseValue('');
         setNote('');
+        setFoodImage(null);
+        setFoodAnalysis(null);
     };
 
     const handleAlertClose = () => {
@@ -89,10 +170,93 @@ export default function LogScreen() {
                 style={{ flex: 1 }}
             >
                 <ScrollView
-                    contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+                    contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <Card title="Registrar Glucosa" subtitle="Monitorea tu nivel de azúcar">
+                    {/* Food Analysis Section */}
+                    <Card title="Análisis de Comida IA" subtitle="Toma una foto para estimar el impacto glucémico">
+                        <View style={{ gap: 12 }}>
+                            {/* Image Preview */}
+                            {foodImage && (
+                                <View style={{ borderRadius: 12, overflow: 'hidden', marginBottom: 12 }}>
+                                    <Image
+                                        source={{ uri: foodImage }}
+                                        style={{ width: '100%', height: 200 }}
+                                        resizeMode="cover"
+                                    />
+                                    {isAnalyzing && (
+                                        <View style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            backgroundColor: 'rgba(0,0,0,0.7)',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <ActivityIndicator size="large" color={Colors.primary} />
+                                            <Text style={{ color: Colors.text, marginTop: 12 }}>
+                                                Analizando comida...
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            )}
+
+                            {/* Food Analysis Results */}
+                            {foodAnalysis && !isAnalyzing && (
+                                <View style={{
+                                    backgroundColor: Colors.backgroundLight,
+                                    padding: 16,
+                                    borderRadius: 12,
+                                    borderWidth: 1,
+                                    borderColor: Colors.border,
+                                    marginBottom: 12,
+                                }}>
+                                    <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.primary, marginBottom: 8 }}>
+                                        {foodAnalysis.foodName}
+                                    </Text>
+                                    <View style={{ gap: 6 }}>
+                                        <Text style={{ color: Colors.text }}>
+                                            📊 Índice Glucémico: <Text style={{ fontWeight: '600' }}>{foodAnalysis.estimatedGlycemicIndex}</Text>
+                                            {foodAnalysis.estimatedGlycemicIndex < 55 ? ' (Bajo ✅)' :
+                                                foodAnalysis.estimatedGlycemicIndex < 70 ? ' (Medio ⚠️)' : ' (Alto 🔴)'}
+                                        </Text>
+                                        <Text style={{ color: Colors.text }}>
+                                            🍞 Carbohidratos: <Text style={{ fontWeight: '600' }}>{foodAnalysis.estimatedCarbs}g</Text>
+                                        </Text>
+                                        <Text style={{ color: Colors.text }}>
+                                            📈 Impacto estimado: <Text style={{ fontWeight: '600' }}>+{foodAnalysis.estimatedGlucoseImpact} mg/dL</Text>
+                                        </Text>
+                                        <Text style={{ color: Colors.textLight, fontSize: 12, marginTop: 4 }}>
+                                            💡 {foodAnalysis.recommendation}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Camera Buttons */}
+                            <View style={{ flexDirection: 'row', gap: 10 }}>
+                                <Button
+                                    title="📷 Cámara"
+                                    variant="outline"
+                                    size="medium"
+                                    onPress={() => pickImage(true)}
+                                    style={{ flex: 1 }}
+                                />
+                                <Button
+                                    title="🖼️ Galería"
+                                    variant="outline"
+                                    size="medium"
+                                    onPress={() => pickImage(false)}
+                                    style={{ flex: 1 }}
+                                />
+                            </View>
+                        </View>
+                    </Card>
+
+                    <Card title="Registrar Glucosa" subtitle="Monitorea tu nivel de azúcar" style={{ marginTop: 20 }}>
                         {/* Glucose Value Input */}
                         <Input
                             label="Nivel de Glucosa (mg/dL)"
