@@ -50,24 +50,24 @@ export const Card: React.FC<CardProps> = ({
                     {...props}
                     style={[
                         {
-                            backgroundColor: Colors.glassBackgroundDark,
+                            backgroundColor: Colors.white,
                             borderRadius: 24,
                             borderWidth: 1,
-                            borderColor: Colors.glassBorder,
-                            shadowColor: Colors.shadow,
-                            shadowOffset: { width: 0, height: 8 },
-                            shadowOpacity: 0.3,
-                            shadowRadius: 24,
-                            elevation: 8,
+                            borderColor: 'rgba(0,0,0,0.05)', // Borde muy sutil
+                            shadowColor: "#000",
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.05, // Sombra muy suave
+                            shadowRadius: 12,
+                            elevation: 4,
                             padding: noPadding ? 0 : 20,
                             overflow: 'hidden',
                         },
                         style,
                     ]}
                 >
-                    {/* Gradient Border Effect */}
+                    {/* Gradient Border Effect - Sutil en tema claro */}
                     <LinearGradient
-                        colors={['rgba(20, 184, 166, 0.3)', 'rgba(6, 182, 212, 0.1)', 'transparent']}
+                        colors={['rgba(20, 184, 166, 0.1)', 'transparent']}
                         style={{
                             position: 'absolute',
                             top: 0,
@@ -120,19 +120,19 @@ export const Card: React.FC<CardProps> = ({
                     ]}
                 >
                     <LinearGradient
-                        colors={[Colors.backgroundCard, Colors.backgroundLight]}
+                        colors={['#FFFFFF', '#F8FAFC']} // Gradiente blanco muy sutil
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={{
                             padding: noPadding ? 0 : 20,
                             borderRadius: 24,
                             borderWidth: 1,
-                            borderColor: Colors.glassBorder,
-                            shadowColor: Colors.shadow,
-                            shadowOffset: { width: 0, height: 12 },
-                            shadowOpacity: 0.4,
-                            shadowRadius: 32,
-                            elevation: 12,
+                            borderColor: 'rgba(0,0,0,0.03)',
+                            shadowColor: Colors.primary, // Sombra con tinte del color primario
+                            shadowOffset: { width: 0, height: 10 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 20,
+                            elevation: 10,
                         }}
                     >
                         {title && (
@@ -172,15 +172,15 @@ export const Card: React.FC<CardProps> = ({
                 {...props}
                 style={[
                     {
-                        backgroundColor: Colors.backgroundCard,
+                        backgroundColor: Colors.white,
                         borderRadius: 20,
                         borderWidth: 1,
                         borderColor: Colors.border,
-                        shadowColor: Colors.shadow,
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 12,
-                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.05,
+                        shadowRadius: 8,
+                        elevation: 2,
                         padding: noPadding ? 0 : 20,
                     },
                     style,

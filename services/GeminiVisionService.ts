@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 
-const GOOGLE_AI_API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_AI_API_KEY || 'AIzaSyCow55mrg4qsLxJ5y2TWoyBl0vbV0if8wI';
+const GOOGLE_AI_API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_AI_API_KEY || 'AIzaSyAFdFeNFrTZOgkwF1_X0Y4Bo--aadgcFv8';
 
 interface FoodAnalysisResult {
     foodName: string;
@@ -13,7 +13,7 @@ interface FoodAnalysisResult {
 }
 
 export class GeminiVisionService {
-    private static API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    private static API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
     /**
      * Analiza una imagen de comida y estima su índice glucémico
@@ -39,6 +39,8 @@ IMPORTANTE:
 - Sé conservador en las estimaciones para diabéticos
 - Responde SOLO con el JSON, sin texto adicional`;
 
+            console.log('Calling Gemini API with key:', GOOGLE_AI_API_KEY?.substring(0, 10) + '...');
+
             const response = await fetch(`${this.API_URL}?key=${GOOGLE_AI_API_KEY}`, {
                 method: 'POST',
                 headers: {
@@ -61,37 +63,53 @@ IMPORTANTE:
                         }
                     ],
                     generationConfig: {
-                        temperature: 0.4, // Más determinista para análisis técnico
-                        maxOutputTokens: 1024,
+                        temperature: 0.4,
+                        maxOutputTokens: 2048, // Aumentado para evitar MAX_TOKENS
                     }
                 }),
             });
 
+            console.log('Response status:', response.status);
+
             if (!response.ok) {
-                const errorData = await response.json();
+                const errorData = await response.text();
                 console.error('Gemini API Error:', errorData);
-                throw new Error(`API Error: ${response.status}`);
+                throw new Error(`API Error ${response.status}: ${errorData}`);
             }
 
             const data = await response.json();
-            console.log('Gemini Response:', JSON.stringify(data, null, 2));
+            console.log('Gemini Full Response:', JSON.stringify(data, null, 2));
 
             const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            console.log('Text Response:', textResponse);
 
             if (!textResponse) {
                 throw new Error('No se recibió respuesta del modelo');
             }
 
-            // Extraer JSON de la respuesta (puede venir con markdown)
-            const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+            // Extraer JSON de la respuesta (puede venir con markdown o código)
+            let jsonText = textResponse;
+
+            // Remover markdown code blocks si existen
+            jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+
+            // Buscar el JSON
+            const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
             if (!jsonMatch) {
+                console.error('No JSON found in response:', textResponse);
                 throw new Error('No se encontró JSON válido en la respuesta');
             }
 
+            console.log('Extracted JSON:', jsonMatch[0]);
+
             const result: FoodAnalysisResult = JSON.parse(jsonMatch[0]);
 
-            // Validación básica
-            if (!result.foodName || result.estimatedGlycemicIndex === undefined) {
+            console.log('Parsed result:', result);
+
+            // Validación más flexible
+            if (!result.foodName && !result.recommendation) {
+                console.error('Invalid result structure:', result);
                 throw new Error('Respuesta incompleta del modelo');
             }
 
