@@ -8,34 +8,48 @@ export interface GlucoseReading {
     note?: string;
 }
 
+// Datos de ejemplo para visualización inicial (últimos 7 días)
 export const MockGlucoseData: GlucoseReading[] = [
     {
         id: '1',
         value: 95,
-        timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-        tag: 'Antes de Comer',
-        note: 'Sentirse bien',
-    },
-    {
-        id: '2',
-        value: 145,
-        timestamp: Date.now() - 1000 * 60 * 60 * 6, // 6 hours ago
-        tag: 'Después de Comer',
-        note: 'Comida pesada',
-    },
-    {
-        id: '3',
-        value: 88,
-        timestamp: Date.now() - 1000 * 60 * 60 * 12, // 12 hours ago
+        timestamp: Date.now() - 6 * 24 * 60 * 60 * 1000,
         tag: 'Ayunas',
     },
     {
+        id: '2',
+        value: 118,
+        timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000,
+        tag: 'Después de Comer',
+    },
+    {
+        id: '3',
+        value: 102,
+        timestamp: Date.now() - 4 * 24 * 60 * 60 * 1000,
+        tag: 'Antes de Comer',
+    },
+    {
         id: '4',
+        value: 135,
+        timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000,
+        tag: 'Después de Comer',
+    },
+    {
+        id: '5',
+        value: 88,
+        timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
+        tag: 'Ayunas',
+    },
+    {
+        id: '6',
         value: 110,
+        timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000,
+        tag: 'Al Dormir',
+    },
     {
         id: '7',
         value: 105,
         timestamp: Date.now() - 12 * 60 * 60 * 1000,
-        tag: 'Fasting',
+        tag: 'Ayunas',
     },
 ];

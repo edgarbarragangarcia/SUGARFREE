@@ -31,11 +31,6 @@ export default function LogScreen() {
     const [currentAlert, setCurrentAlert] = useState<any>(null);
 
     const tags: GlucoseTag[] = ['Ayunas', 'Antes de Comer', 'Después de Comer', 'Al Dormir'];
-    // Mapping for internal logic if needed, but for MVP we use the string directly or map it back
-    // For simplicity in MVP, let's update the type in MockData or just use these strings.
-    // Since MockData types are strict, we might need to adjust them or map them.
-    // Let's assume we map them for display but keep internal english or update internal to Spanish.
-    // Updating internal to Spanish is better for consistency.
 
     const handleSubmit = () => {
         const value = parseFloat(glucoseValue);
@@ -46,14 +41,10 @@ export default function LogScreen() {
         }
 
         // Add the reading
-        // Note: We are using Spanish tags now. We should update the GlucoseReading type definition or cast it.
-        // For this MVP, I will cast it to any to avoid type errors with the English definition, 
-        // or better, I will update the type definition in a separate step. 
-        // For now, let's proceed with the translation.
         addReading({
             value,
             timestamp: Date.now(),
-            tag: selectedTag as any,
+            tag: selectedTag,
             note: note.trim() || undefined,
         });
 
@@ -63,7 +54,7 @@ export default function LogScreen() {
                 id: 'temp',
                 value,
                 timestamp: Date.now(),
-                tag: selectedTag as any,
+                tag: selectedTag,
                 note: note.trim() || undefined,
             },
             ...readings,
@@ -131,7 +122,7 @@ export default function LogScreen() {
                                         title={tag}
                                         variant={selectedTag === tag ? 'primary' : 'outline'}
                                         size="small"
-                                        onPress={() => setSelectedTag(tag as any)}
+                                        onPress={() => setSelectedTag(tag)}
                                         style={{ minWidth: 100 }}
                                     />
                                 ))}
