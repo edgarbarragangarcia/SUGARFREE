@@ -174,7 +174,7 @@ export default function LogScreen() {
                     keyboardShouldPersistTaps="handled"
                 >
                     {/* Food Analysis Section */}
-                    <Card title="Análisis de Comida IA" subtitle="Toma una foto para estimar el impacto glucémico">
+                    <Card title="Análisis de Comida IA" subtitle="Toma una foto para estimar el impacto glucémico" variant="silver">
                         <View style={{ gap: 12 }}>
                             {/* Image Preview */}
                             {foodImage && (
@@ -261,7 +261,7 @@ export default function LogScreen() {
                         </View>
                     </Card>
 
-                    <Card title="Registrar Glucosa" subtitle="Monitorea tu nivel de azúcar" style={{ marginTop: 20 }}>
+                    <Card title="Registrar Glucosa" subtitle="Monitorea tu nivel de azúcar" style={{ marginTop: 20 }} variant="graphite">
                         {/* Glucose Value Input */}
                         <Input
                             label="Nivel de Glucosa (mg/dL)"
@@ -320,7 +320,7 @@ export default function LogScreen() {
 
                     {/* Recent Readings */}
                     {readings.length > 0 && (
-                        <Card title="Registros Recientes" style={{ marginTop: 20 }}>
+                        <Card title="Registros Recientes" style={{ marginTop: 20 }} variant="platinum">
                             {readings.slice(0, 3).map((reading) => (
                                 <View
                                     key={reading.id}

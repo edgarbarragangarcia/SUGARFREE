@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Colors } from '../../constants/Colors';
+import { Colors, Gradients } from '../../constants/Colors';
 import { useUserStore } from '../../store/userStore';
 import { useGlucoseStore } from '../../store/glucoseStore';
 import { Card } from '../../components/ui/Card';
@@ -61,7 +61,7 @@ export default function ProfileScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* User Info */}
-                <Card title="Información de Perfil">
+                <Card title="Información de Perfil" variant="platinum">
                     <View style={{ marginTop: 8 }}>
                         <InfoRow label="Nombre" value={profile?.name ?? 'No definido'} />
                         <InfoRow label="Tipo de Diabetes" value={profile?.diabetesType ?? 'No definido'} />
@@ -73,7 +73,7 @@ export default function ProfileScreen() {
                 </Card>
 
                 {/* Emergency Contact */}
-                <Card title="Contacto de Emergencia" style={{ marginTop: 20 }}>
+                <Card title="Contacto de Emergencia" style={{ marginTop: 20 }} variant="graphite">
                     <Text style={{ fontSize: 14, color: Colors.textLight, marginBottom: 16 }}>
                         Activa para enviar alertas a tu contacto de emergencia cuando los niveles sean críticos.
                     </Text>
@@ -86,7 +86,7 @@ export default function ProfileScreen() {
                 </Card>
 
                 {/* Settings */}
-                <Card title="Configuración" style={{ marginTop: 20 }}>
+                <Card title="Configuración" style={{ marginTop: 20 }} variant="silver">
                     <Button
                         title="Borrar Datos"
                         variant="danger"

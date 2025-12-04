@@ -71,46 +71,88 @@ export const PredictiveStatusCard: React.FC<PredictiveStatusCardProps> = ({
     const riskGradient = getRiskGradient();
     const trendIcon = getTrendIcon();
 
+    const isLowRisk = !prediction || prediction.riskLevel === 'low';
+    // Use graphite (dark) for normal state to give that premium black/grey look
+    const cardVariant = isLowRisk ? 'graphite' : 'platinum';
+
     return (
-        <Card noPadding variant="glass">
+        <Card noPadding variant={cardVariant}>
             <View style={{ borderRadius: 28, overflow: 'hidden' }}>
-                {/* Header with gradient background */}
-                <LinearGradient
-                    colors={riskGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{
-                        padding: 24,
-                        paddingBottom: 20,
-                    }}
-                >
-                    <Text
+                {/* Header */}
+                {isLowRisk ? (
+                    // Emerald Variant Header (Transparent because Card is already green)
+                    <View
                         style={{
-                            fontSize: 14,
-                            color: Colors.white,
-                            opacity: 0.95,
-                            marginBottom: 8,
-                            fontWeight: '600',
-                            letterSpacing: 1,
-                            textTransform: 'uppercase',
+                            padding: 24,
+                            paddingBottom: 20,
                         }}
                     >
-                        Glucosa Actual
-                    </Text>
-                    <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
                         <Text
                             style={{
-                                fontSize: 56,
-                                fontWeight: '900',
+                                fontSize: 14,
                                 color: Colors.white,
-                                letterSpacing: -2,
+                                opacity: 0.95,
+                                marginBottom: 8,
+                                fontWeight: '600',
+                                letterSpacing: 1,
+                                textTransform: 'uppercase',
                             }}
                         >
-                            {currentValue}
-                            <Text style={{ fontSize: 28, fontWeight: '700' }}> mg/dL</Text>
+                            Glucosa Actual
                         </Text>
-                    </Animated.View>
-                </LinearGradient>
+                        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                            <Text
+                                style={{
+                                    fontSize: 56,
+                                    fontWeight: '900',
+                                    color: Colors.white,
+                                    letterSpacing: -2,
+                                }}
+                            >
+                                {currentValue}
+                                <Text style={{ fontSize: 28, fontWeight: '700' }}> mg/dL</Text>
+                            </Text>
+                        </Animated.View>
+                    </View>
+                ) : (
+                    // Alert Variant Header (Gradient background)
+                    <LinearGradient
+                        colors={riskGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={{
+                            padding: 24,
+                            paddingBottom: 20,
+                        }}
+                    >
+                        <Text
+                            style={{
+                                fontSize: 14,
+                                color: Colors.white,
+                                opacity: 0.95,
+                                marginBottom: 8,
+                                fontWeight: '600',
+                                letterSpacing: 1,
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            Glucosa Actual
+                        </Text>
+                        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                            <Text
+                                style={{
+                                    fontSize: 56,
+                                    fontWeight: '900',
+                                    color: Colors.white,
+                                    letterSpacing: -2,
+                                }}
+                            >
+                                {currentValue}
+                                <Text style={{ fontSize: 28, fontWeight: '700' }}> mg/dL</Text>
+                            </Text>
+                        </Animated.View>
+                    </LinearGradient>
+                )}
 
                 {/* Prediction Section with glassmorphism */}
                 <View

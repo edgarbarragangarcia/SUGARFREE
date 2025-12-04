@@ -140,7 +140,7 @@ export default function HomeScreen() {
                     </View>
 
                     {/* Gráfico de 7 Días */}
-                    <GlucoseChart readings={readings} />
+                    <GlucoseChart readings={readings} variant="slate" />
 
                     {/* Botón de Emergencia con pulse */}
                     <Animated.View

@@ -87,7 +87,7 @@ export default function LoginScreen() {
                     </View>
 
                     {/* Profile Setup Form */}
-                    <Card title="¡Bienvenido! Configuremos tu perfil">
+                    <Card title="¡Bienvenido! Configuremos tu perfil" variant="platinum">
                         <Input
                             label="Tu Nombre"
                             value={name}

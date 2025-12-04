@@ -8,15 +8,17 @@ import { GlucoseReading } from '../../constants/MockData';
 interface GlucoseChartProps {
     readings: GlucoseReading[];
     title?: string;
+    variant?: 'default' | 'glass' | 'premium' | 'gradient' | 'platinum' | 'silver' | 'slate' | 'graphite' | 'emerald' | 'sage';
 }
 
 export const GlucoseChart: React.FC<GlucoseChartProps> = ({
     readings,
     title = 'Tendencia de 7 Días',
+    variant = 'slate',
 }) => {
     if (readings.length === 0) {
         return (
-            <Card title={title} variant="glass">
+            <Card title={title} variant={variant}>
                 <Text style={{ textAlign: 'center', color: Colors.textLight, fontSize: 15 }}>
                     No hay datos disponibles. ¡Empieza a registrar para ver tu tendencia!
                 </Text>
@@ -60,7 +62,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
     const chartWidth = Math.min(screenWidth - 80, 350);
 
     return (
-        <Card title={title} variant="glass">
+        <Card title={title} variant={variant}>
             <View style={{ marginVertical: 16 }}>
                 <LineChart
                     data={chartData}

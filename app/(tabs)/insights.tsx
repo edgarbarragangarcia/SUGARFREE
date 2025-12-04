@@ -51,7 +51,7 @@ export default function InsightsScreen() {
                     </Text>
 
                     {/* Weekly Summary */}
-                    <Card title="Resumen Semanal" variant="glass">
+                    <Card title="Resumen Semanal" variant="platinum">
                         <View style={{
                             flexDirection: 'row',
                             justifyContent: 'space-between',
@@ -80,7 +80,7 @@ export default function InsightsScreen() {
                     </Card>
 
                     {/* AI Insights */}
-                    <Card title="Análisis Inteligente" subtitle="Impulsado por IA" style={{ marginTop: 24 }} variant="glass">
+                    <Card title="Análisis Inteligente" subtitle="Impulsado por IA" style={{ marginTop: 24 }} variant="silver">
                         {insights.map((insight, index) => (
                             <View
                                 key={index}
@@ -118,7 +118,7 @@ export default function InsightsScreen() {
                     </View>
 
                     {/* Share Report */}
-                    <Card title="Compartir Reporte" style={{ marginTop: 24 }} variant="glass">
+                    <Card title="Compartir Reporte" style={{ marginTop: 24 }} variant="slate">
                         <Text style={{ fontSize: 15, color: Colors.textLight, marginBottom: 18, lineHeight: 22 }}>
                             Genera un reporte PDF para compartir con tu médico o familia.
                         </Text>
